@@ -1,0 +1,81 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="time-display">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+
+            #time {
+                font-size: 1.75em;
+                text-transform: uppercase;
+                transition: opacity .3s;
+            }
+        </style>
+        <div id="time">[[time]]</div>
+    </template>
+
+    <script>
+        /**
+         * `time-display`
+         * 
+         *
+         * @customElement
+         * @polymer
+         */
+        class TimeDisplay extends Polymer.Element {
+            static get is() {
+                return 'time-display';
+            }
+            static get properties() {
+                return {
+                    time: {
+                        type: String,
+                        value: '',
+                    },
+                    updateTime: {
+                        type: Boolean,
+                        value: true,
+                        observer: '_updateTime'
+                    },
+                    updateInterval: {
+                        type: Number,
+                        value: 1000
+                    }
+                };
+            }
+
+            _updateTime(update) {
+                if (update) {
+                    this.timeInterval = setInterval(() => {
+                        const time = this._getCurrentTime();
+                        const elem = this.$.time;
+                        if (time != this.time) {
+                            elem.style.opacity = 0;
+                            setTimeout(() => {
+                                this.time = time;
+                                elem.style.opacity = 1;
+                            }, 300)
+                        } else {
+                            return
+                        }
+                    }, this.updateInterval)
+                } else if (!update && this.timeInterval) {
+                    clearInterval(this.updateInterval)
+                }
+            }
+
+            _getCurrentTime() {
+                const time = new Date();
+                return time.toLocaleString('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+            }
+        }
+
+        window.customElements.define(TimeDisplay.is, TimeDisplay);
+    </script>
+</dom-module>

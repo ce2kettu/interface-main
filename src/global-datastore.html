@@ -1,0 +1,37 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="global-datastore">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+        </style>
+        <h2>Hello [[prop1]]!</h2>
+    </template>
+
+    <script>
+        /**
+         * `global-datastore`
+         * 
+         *
+         * @customElement
+         * @polymer
+         */
+        class GlobalDatastore extends Polymer.Element {
+            static get is() {
+                return 'global-datastore';
+            }
+            static get properties() {
+                return {
+                    prop1: {
+                        type: String,
+                        value: 'global-datastore'
+                    }
+                };
+            }
+        }
+
+        window.customElements.define(GlobalDatastore.is, GlobalDatastore);
+    </script>
+</dom-module>

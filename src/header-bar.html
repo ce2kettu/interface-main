@@ -1,0 +1,217 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="sub-grid.html">
+<link rel="import" href="grid-item.html">
+<link rel="import" href="time-display.html">
+<link rel="import" href="user-avatar.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="header-bar">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+
+      .header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .header__user {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex: 1;
+      }
+
+      .header__user__detail {
+        display: flex;
+        flex-direction: column;
+        margin-left: 1em;
+        font-size: 1.6em;
+        line-height: 1.3em;
+        transition: opacity .5s;
+      }
+
+      .header__user__detail--animate {
+        opacity: 0;
+      }
+
+      .header__user__detail__secondary {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        color: #E0E0E0;
+        font-size: 0.9em;
+      }
+
+      .header__user__detail__secondary>iron-icon {
+        margin-right: 0.4em;
+      }
+
+      .header__nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        flex: 2;
+        flex-flow: row;
+      }
+
+      .header__nav__item {
+        color: #E0E0E0;
+        font-size: 1.5em;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-align: center;
+        padding: .25em .5em;
+        box-sizing: border-box;
+        border: 2px solid transparent;
+        margin-right: .25em;
+      }
+
+      .header__nav:last-child {
+        margin-right: 0 !important;
+      }
+
+      .header__nav__item--selected {
+        color: #fff;
+        box-shadow: 0px 10px 40px -10px rgba(255, 0, 131, .7);
+        border: 2px solid #D5006C;
+        background: #D5006C;
+      }
+
+      .time {
+        display: flex;
+        justify-content: flex-end;
+        flex: 1;
+        font-size: 1.5em;
+      }
+
+      .background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url(../images/bg2.jpg);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+        transform: scale(1.05);
+        filter: blur(10px);
+        z-index: -1;
+      }
+    </style>
+    <div class="header">
+      <!-- <div class="background"></div> -->
+      <div class="header__user">
+        <user-avatar></user-avatar>
+        <div class="header__user__detail">
+          <template is="dom-if" if="{{!userIntervalState}}">
+            <div class="header__user__detail__primary">[[nickname]]</div>
+            <div class="header__user__detail__secondary">
+              <iron-icon icon="lobby-icons:money"></iron-icon>
+              [[money]]
+            </div>
+          </template>
+          <template is="dom-if" if="{{userIntervalState}}">
+            <div class="header__user__detail__primary">[[username]]</div>
+            <div class="header__user__detail__secondary">[[email]]</div>
+          </template>
+        </div>
+      </div>
+      <sub-grid class="header__nav" columns="5" layout="[0,1,2,3,4]" selected="0" selected-class="header__nav__item--selected">
+        <grid-item class="header__nav__item header__nav__item--selected">Home</grid-item>
+        <grid-item class="header__nav__item">Community</grid-item>
+        <grid-item class="header__nav__item">Userpanel</grid-item>
+        <grid-item class="header__nav__item">Store</grid-item>
+        <grid-item class="header__nav__item">Profile</grid-item>
+      </sub-grid>
+      <time-display class="time"></time-display>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * `header-bar`
+     * 
+     *
+     * @customElement
+     * @polymer
+     */
+    class HeaderBar extends Polymer.Element {
+      static get is() {
+        return 'header-bar';
+      }
+      static get properties() {
+        return {
+          nickname: {
+            type: String,
+            value: 'ManiacalArrow69'
+          },
+          money: {
+            type: Number,
+            value: 1333242,
+            computed: '_computedMoney(money)'
+          },
+          username: {
+            type: String,
+            value: 'Cat Master'
+          },
+          email: {
+            type: String,
+            value: 'coget4@gmail.com'
+          },
+          xp: {
+            type: Number,
+            value: 12775
+          },
+          level: {
+            type: Number,
+            value: 54
+          },
+          userIntervalState: {
+            type: Boolean,
+            value: true,
+            observer: '_userInterval'
+          }
+        };
+      }
+
+      ready() {
+        super.ready();
+      }
+
+      _userInterval(state) {
+        if (state) {
+          this._startUserInterval();
+        } else {
+          this._stopUserInterval();
+        }
+      }
+
+      _startUserInterval() {
+        this.userInterval = setInterval(() => {
+          const elem = this.shadowRoot.querySelector('.header__user__detail');
+          elem.classList.add('header__user__detail--animate');
+          setTimeout(() => {
+            elem.classList.remove('header__user__detail--animate');
+            this.userIntervalState = !this.userIntervalState;
+          }, 400)
+        }, 5000);
+      }
+
+      _stopUserInterval() {
+        clearInterval(this.userInterval);
+        this.userIntervalState = false;
+      }
+
+      _computedMoney(money) {
+        return money.toLocaleString('en-US');
+      }
+    }
+
+    window.customElements.define(HeaderBar.is, HeaderBar);
+  </script>
+</dom-module>

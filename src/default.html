@@ -1,0 +1,35 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="time-display">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+    /**
+     * `time-display`
+     * 
+     *
+     * @customElement
+     * @polymer
+     */
+    class TimeDisplay extends Polymer.Element {
+      static get is() { return 'time-display'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'time-display'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(TimeDisplay.is, TimeDisplay);
+  </script>
+</dom-module>

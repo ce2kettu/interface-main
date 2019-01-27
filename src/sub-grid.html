@@ -1,0 +1,176 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="lobby-icons.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="sub-grid">
+    <template>
+        <style include="shared-styles">
+             :host {
+                --app-primary-color: #4285f4;
+                --app-secondary-color: black;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-flow: column wrap;
+                align-content: flex-start;
+            }
+        </style>
+
+        <slot></slot>
+    </template>
+
+    <script>
+        class SubGrid extends Polymer.Element {
+            static get is() {
+                return 'sub-grid';
+            }
+
+            static get properties() {
+                return {
+                    items: Array,
+                    columns: Number,
+                    layout: Array,
+                    layoutItem: Number,
+                    selectedClass: String,
+                    selected: Number,
+                    active: Boolean,
+                    rootPath: String,
+                };
+            }
+
+            static get observers() {
+                return [
+                    '_activeChanged(active, items)'
+                ]
+            }
+
+            _activeChanged(active, items) {
+                if (active && items) {
+                    this.currentItem = this.items[this.selected];
+                    this.layoutItem = this.items.indexOf(this.currentItem);
+                    this.currentItem.classList.add(this.selectedClass);
+                }
+            }
+
+            constructor() {
+                super();
+                this._boundKeyListener = this._keyListener.bind(this);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                window.addEventListener('keyup', this._boundKeyListener);
+                window.addEventListener('click', this._boundClickListener);
+            }
+
+            disconnectedCallback() {
+                super.disconnectedCallback();
+                window.removeEventListener('keyup', this._boundKeyListener);
+                window.removeEventListener('click', this._boundClickListener);
+            }
+
+            ready() {
+                super.ready();
+
+                window.addEventListener('grid-item-clicked', (e) => {
+                    const selected = e.detail.layoutIndex;
+                    this.currentItem.classList.remove(this.selectedClass);
+                    this.layoutItem = selected;
+                    this.currentItem = this.items[this.layoutItem];
+                    this.currentItem.classList.add(this.selectedClass);
+                })
+
+                const nodes = Array.from(this.shadowRoot.querySelector('slot').assignedNodes());
+                const children = nodes.filter((node) => {
+                    return node.localName == 'grid-item';
+                })
+                this.items = children;
+            }
+
+            _changeSelectedItem(selected) {
+                this.currentItem.classList.remove(this.selectedClass);
+                this.layoutItem = this.layout[selected];
+                this.currentItem = this.items[this.layoutItem];
+                this.currentItem.classList.add(this.selectedClass);
+            }
+
+            _layoutIndexShift(amount) {
+                let selected = this.selected;
+                do {
+                    selected = selected + amount;
+                } while (this.layout[selected] == this.layoutItem);
+                if (selected < 0) {
+                    selected = (this.layout.length + selected) % this.layout.length;
+                }
+                if (selected > this.layout.length - 1) {
+                    selected = selected % this.layout.length;
+                }
+                return selected;
+            }
+
+            _navigateUpward() {
+                this.selected = this._layoutIndexShift(-this.columns);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _navigateDownward() {
+                this.selected = this._layoutIndexShift(+this.columns);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _navigateLeftward() {
+                this.selected = this._layoutIndexShift(-1);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _navigateRightward() {
+                this.selected = this._layoutIndexShift(+1);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _onItemSelected() {
+                alert('selected');
+            }
+
+            _keyListener(e) {
+                if (this.active) {
+                    const key = e.keyCode;
+                    switch (key) {
+                        case 38:
+                            this._navigateUpward();
+                            break;
+                        case 40:
+                            this._navigateDownward();
+                            break;
+                        case 37:
+                            this._navigateLeftward();
+                            break;
+                        case 39:
+                            this._navigateRightward();
+                            break;
+                        case 13:
+                            this._onItemSelected();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        }
+
+        window.customElements.define(SubGrid.is, SubGrid);
+    </script>
+</dom-module>

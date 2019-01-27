@@ -1,0 +1,151 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="lobby-icons.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="grid-container">
+    <template>
+        <style include="shared-styles">
+             :host {
+                --app-primary-color: #4285f4;
+                --app-secondary-color: black;
+                width: 100%;
+                height: 100%;
+                /*                 display: flex;
+                flex-flow: column wrap;
+                align-content: flex-start; */
+            }
+        </style>
+
+        <slot></slot>
+    </template>
+
+    <script>
+        class GridContainer extends Polymer.Element {
+            static get is() {
+                return 'grid-container';
+            }
+
+            static get properties() {
+                return {
+                    items: Array,
+                    columns: Number,
+                    layout: Array,
+                    layoutItem: Number,
+                    selectedClass: String,
+                    selected: Number,
+                    rootPath: String,
+                };
+            }
+
+            constructor() {
+                super();
+                this._boundKeyListener = this._keyListener.bind(this);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                window.addEventListener('keyup', this._boundKeyListener);
+                window.addEventListener('click', this._boundClickListener);
+            }
+
+            disconnectedCallback() {
+                super.disconnectedCallback();
+                window.removeEventListener('keyup', this._boundKeyListener);
+                window.removeEventListener('click', this._boundClickListener);
+            }
+
+            ready() {
+                super.ready();
+
+                this.delta = 500;
+                this.lastKeyPressTime = 0;
+                const main = document.querySelector('main-entry');
+                this.grids = main.shadowRoot.querySelectorAll('sub-grid');
+                this.grids[this.selected].active = true;
+            }
+
+            _changeSelectedItem(selected) {
+                this.currentItem.classList.remove(this.selectedClass);
+                this.layoutItem = this.layout[selected];
+                this.currentItem = this.items[this.layoutItem];
+                this.currentItem.classList.add(this.selectedClass);
+            }
+
+            _layoutIndexShift(amount) {
+                let selected = this.selected;
+                do {
+                    selected = selected + amount;
+                } while (this.layout[selected] == this.layoutItem);
+                if (selected < 0) {
+                    selected = (this.layout.length + selected) % this.layout.length;
+                }
+                if (selected > this.layout.length - 1) {
+                    selected = selected % this.layout.length;
+                }
+                return selected;
+            }
+
+            _navigateUpward() {
+                this.selected = this._layoutIndexShift(-this.columns);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _navigateDownward() {
+                this.selected = this._layoutIndexShift(+this.columns);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _navigateLeftward() {
+                this.selected = this._layoutIndexShift(-1);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _navigateRightward() {
+                this.selected = this._layoutIndexShift(+1);
+                this._changeSelectedItem(this.selected);
+            }
+
+            _onItemSelected() {
+                alert('selected');
+            }
+
+            _keyListener(e) {
+                const key = e.keyCode;
+                if (key == 38) {
+                    var thisKeypressTime = new Date();
+                    if (thisKeypressTime - this.lastKeypressTime <= this.delta && this.selected > 0) {
+                        this.grids[this.selected].active = false;
+                        this.selected = this.selected - 1;
+                        this.grids[this.selected].active = true;
+                        thisKeypressTime = 0;
+                    }
+                    this.lastKeypressTime = thisKeypressTime;
+                } else if (key == 40) {
+                    var thisKeypressTime = new Date();
+                    if (thisKeypressTime - this.lastKeypressTime <= this.delta && this.selected < this.grids.length - 1) {
+                        this.grids[this.selected].active = false;
+                        this.selected = this.selected + 1;
+                        this.grids[this.selected].active = true;
+                        thisKeypressTime = 0;
+                    }
+                    this.lastKeypressTime = thisKeypressTime;
+                }
+            }
+
+        }
+
+        window.customElements.define(GridContainer.is, GridContainer);
+    </script>
+</dom-module>

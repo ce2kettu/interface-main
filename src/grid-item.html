@@ -1,0 +1,98 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="lobby-icons.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="grid-item">
+    <template>
+        <style include="shared-styles">
+             :host {
+                --app-primary-color: #4285f4;
+                --app-secondary-color: black;
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+
+             :host([selected]) {
+                border: 4px solid #fff !important;
+            }
+        </style>
+
+        <slot></slot>
+    </template>
+
+    <script>
+        class GridItem extends Polymer.Element {
+            static get is() {
+                return 'grid-item';
+            }
+
+            static get properties() {
+                return {
+                    selected: {
+                        type: Boolean,
+                        notify: true,
+                        reflectToAttribute: true
+                    },
+                    layoutIndex: Number,
+                    rootPath: String,
+                };
+            }
+
+            static get observers() {
+                return [
+                    '_selectedChanged(selected)'
+                ];
+            }
+
+            constructor() {
+                super();
+                this._boundClickListener = this._clickListener.bind(this);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.addEventListener('click', this._boundClickListener);
+            }
+
+            disconnectedCallback() {
+                super.disconnectedCallback();
+                this.removeEventListener('click', this._boundClickListener);
+            }
+
+            _clickListener(e) {
+                window.dispatchEvent(new CustomEvent('grid-item-clicked', {
+                    detail: {
+                        layoutIndex: this.layoutIndex
+                    }
+                }));
+            }
+
+            ready() {
+                super.ready();
+            }
+
+
+            _selectedChanged(selected, items, selectedClass) {
+                if (!isNaN(selected) && items) {
+                    items[selected].classList.add(selectedClass);
+                    this.layoutItem = this.layout[selected]
+                }
+            }
+        }
+
+        window.customElements.define(GridItem.is, GridItem);
+    </script>
+</dom-module>

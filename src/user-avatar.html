@@ -1,0 +1,363 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="circle-progress.html">
+
+<dom-module id="user-avatar">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+
+            .avatar {
+                border-radius: 50%;
+                background-size: cover;
+                width: 80px;
+                height: 80px;
+                position: relative;
+                /* border: 4px solid #fff; */
+            }
+
+            .avatar__level__badge {
+                position: absolute;
+                font-size: .15em;
+                z-index: 1;
+                bottom: -3px;
+                right: 3px;
+                width: 10em;
+                height: 17.32em;
+                border-radius: 1em / .5em;
+                background: var(--level-color, green);
+                pointer-events: none;
+                transform: rotate(-90deg);
+            }
+
+            .avatar__level__badge:before,
+            .avatar__level__badge:after {
+                position: absolute;
+                width: inherit;
+                height: inherit;
+                border-radius: inherit;
+                background: inherit;
+                content: '';
+            }
+
+            .avatar__level__badge:before {
+                transform: rotate(60deg);
+            }
+
+            .avatar__level__badge:after {
+                transform: rotate(-60deg);
+            }
+
+            .avatar__level__wrapper {
+                position: absolute;
+                bottom: -3px;
+                right: 3px;
+                width: 10em;
+                height: 17.32em;
+                font-size: .15em;
+                font-weight: 500;
+                text-align: center;
+                z-index: 1;
+                transform: rotate(-90deg);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .avatar__level {
+                font-size: 9em;
+                transform: rotate(90deg);
+            }
+
+            circle-progress {
+                --circle-progress-width: 88px;
+                --circle-progress-height: 88px;
+                --circle-progress-stroke-linecap: butt;
+                --circle-progress-stroke-color: var(--level-color);
+            }
+        </style>
+        <circle-progress value="75" angle="15" stroke-width="4">
+            <div class="avatar" style$="[[_computeStyles(avatarUrl, defaultAvatar)]]">
+                <div class="avatar__level__badge"></div>
+                <div class="avatar__level__wrapper">
+                    <div class="avatar__level">[[level]]</div>
+                </div>
+            </div>
+        </circle-progress>
+    </template>
+
+    <script>
+        /**
+         * `user-avatar`
+         * 
+         *
+         * @customElement
+         * @polymer
+         */
+        class UserAvatar extends Polymer.Element {
+            static get is() {
+                return 'user-avatar';
+            }
+
+            static get properties() {
+                return {
+                    avatarUrl: String,
+                    defaultAvatar: String,
+                    level: {
+                        type: Number
+                    },
+                    levelObject: {
+                        type: Object,
+                        computed: '_computedLevel(level)'
+                    },
+                    xp: {
+                        type: Number,
+                        value: 12775,
+                        observer: '_experiencePointsChanged'
+                    },
+                };
+            }
+
+            static get levels() {
+                return [{
+                    level: '1',
+                    color: '#0b8043',
+                    name: 'Noob',
+                    xp: 1000
+                }, {
+                    level: '2',
+                    color: '#00796b',
+                    xp: 1500
+                }, {
+                    level: '3',
+                    color: '#007b86',
+                    xp: 2500
+                }, {
+                    level: '4',
+                    color: '#0177bd',
+                    xp: 5000
+                }, {
+                    level: '5',
+                    color: '#3367d6',
+                    xp: 10000
+                }, {
+                    level: '6',
+                    color: '#673bb4',
+                    xp: 10000
+                }, {
+                    level: '7',
+                    color: '#9c27b0',
+                    xp: 10000
+                }, {
+                    level: '8',
+                    color: '#c94700',
+                    xp: 10000
+                }, {
+                    level: '9',
+                    color: '#cc3d30',
+                    xp: 10000
+                }, {
+                    level: '10',
+                    color: '#d81a60',
+                    xp: 10000
+                }, {
+                    level: '11',
+                    color: '#0b8043',
+                    xp: 20000
+                }, {
+                    level: '12',
+                    color: '#00796b',
+                    xp: 20000
+                }, {
+                    level: '13',
+                    color: '#007b86',
+                    xp: 20000
+                }, {
+                    level: '14',
+                    color: '#0177bd',
+                    xp: 20000
+                }, {
+                    level: '15',
+                    color: '#3367d6',
+                    xp: 50000
+                }, {
+                    level: '16',
+                    color: '#673bb4',
+                    xp: 50000
+                }, {
+                    level: '17',
+                    color: '#9c27b0',
+                    xp: 50000
+                }, {
+                    level: '18',
+                    color: '#c94700',
+                    xp: 50000
+                }, {
+                    level: '19',
+                    color: '#cc3d30',
+                    xp: 50000
+                }, {
+                    level: '20',
+                    color: '#d81a60',
+                    xp: 50000
+                }, {
+                    level: '21',
+                    color: '#0b8043',
+                    xp: 50000
+                }, {
+                    level: '22',
+                    color: '#00796b',
+                    xp: 50000
+                }, {
+                    level: '23',
+                    color: '#007b86',
+                    xp: 50000
+                }, {
+                    level: '24',
+                    color: '#0177bd',
+                    xp: 50000
+                }, {
+                    level: '25',
+                    color: '#3367d6',
+                    xp: 50000
+                }, {
+                    level: '26',
+                    color: '#673bb4',
+                    xp: 50000
+                }, {
+                    level: '27',
+                    color: '#9c27b0',
+                    xp: 50000
+                }, {
+                    level: '28',
+                    color: '#c94700',
+                    xp: 50000
+                }, {
+                    level: '29',
+                    color: '#cc3d30',
+                    xp: 50000
+                }, {
+                    level: '30',
+                    color: '#d81a60',
+                    xp: 50000
+                }, {
+                    level: '31',
+                    color: '#0b8043',
+                    xp: 50000
+                }, {
+                    level: '32',
+                    color: '#00796b',
+                    xp: 50000
+                }, {
+                    level: '33',
+                    color: '#007b86',
+                    xp: 50000
+                }, {
+                    level: '34',
+                    color: '#0177bd',
+                    xp: 50000
+                }, {
+                    level: '35',
+                    color: '#3367d6',
+                    xp: 50000
+                }, {
+                    level: '36',
+                    color: '#673bb4',
+                    xp: 50000
+                }, {
+                    level: '37',
+                    color: '#9c27b0',
+                    xp: 50000
+                }, {
+                    level: '38',
+                    color: '#c94700',
+                    xp: 50000
+                }, {
+                    level: '39',
+                    color: '#cc3d30',
+                    xp: 50000
+                }, {
+                    level: '40',
+                    color: '#d81a60',
+                    xp: 50000
+                }, {
+                    level: '41',
+                    color: '#0b8043',
+                    xp: 50000
+                }, {
+                    level: '42',
+                    color: '#00796b',
+                    xp: 50000
+                }, {
+                    level: '43',
+                    color: '#007b86',
+                    xp: 50000
+                }, {
+                    level: '44',
+                    color: '#0177bd',
+                    xp: 50000
+                }, {
+                    level: '45',
+                    color: '#3367d6',
+                    xp: 100000
+                }, {
+                    level: '46',
+                    color: '#673bb4',
+                    xp: 100000
+                }, {
+                    level: '47',
+                    color: '#9c27b0',
+                    xp: 100000
+                }, {
+                    level: '48',
+                    color: '#c94700',
+                    xp: 100000
+                }, {
+                    level: '49',
+                    color: '#cc3d30',
+                    xp: 100000
+                }, {
+                    level: '50',
+                    color: '#d81a60',
+                    xp: false
+                }];
+            }
+
+            _computedLevel(level) {
+                return UserAvatar.levels[level - 1];
+            }
+
+            _increaseExperiencePoints(xp) {
+                this.xp += xp;
+            }
+
+            _experiencePointsChanged(xp) {
+                if (this.levelObject && xp >= this.levelObject.xp && this.levelObject.xp) {
+                    this.xp = xp - this.levelObject.xp;
+                    this.level++;
+                    this.updateStyles({
+                        '--level-color': this.levelObject.color
+                    });
+                }
+            }
+
+            ready() {
+                super.ready();
+                this.avatarUrl = '../images/avatar2.png';
+                this.defaultAvatar = '../images/avatar2.png';
+                this.level = 54;
+                //console.log(this.levelObject);
+            }
+
+            _computeStyles() {
+                //console.log(this.avatarUrl, this.defaultAvatar);
+                const avatar = `background-image: url(${this.avatarUrl ? this.avatarUrl : this.defaultAvatar})`;
+                return avatar;
+            }
+        }
+
+        window.customElements.define(UserAvatar.is, UserAvatar);
+    </script>
+</dom-module>
